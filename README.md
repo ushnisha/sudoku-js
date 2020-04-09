@@ -11,7 +11,8 @@ Sudoku-JS allows you to solve a Sudoku Puzzle online.
 
 ## Features:
 
-* Load a difficult puzzle from a sample set
+* Load a difficult puzzle from a sample set or import user list
+  (refer to file sudokuList.json for import format of sudokus)
 
 * Reset the puzzle to start over if you have made a mistake
 
