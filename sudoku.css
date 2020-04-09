@@ -37,7 +37,14 @@ div.fixed {
     background-color:#dfdfdf;
     color: #000000;
     font-weight: bold;
-    background-clip: padding-box;
+}
+
+div.selected {
+    background-color:#d8bfd8;
+}
+
+div.error {
+    background-color:#fa8072;
 }
 
 div.sudokuchoice {
@@ -46,6 +53,11 @@ div.sudokuchoice {
     text-align: center;
     vertical-align: middle;
     border: solid 1px black;
+}
+
+div.disabled {
+    visibility:hidden;
+    pointer-events: none;
 }
 
 div.sudokucontroller {

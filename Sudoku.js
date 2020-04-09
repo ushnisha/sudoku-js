@@ -151,6 +151,10 @@ class Sudoku {
             else {
                 let solved = false;
                 let choices = Object.keys(sq.choices);
+                choices = choices
+                    .map((a) => ({sort: Math.random(), value: a}))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map((a) => a.value);
                 for (let c = 0; c < choices.length; c++) {
                     sq.setValue(choices[c]);
                     if (this.tryDFS(i+1, this.getNextSquare(i+1))) {
@@ -170,6 +174,25 @@ class Sudoku {
                                      .sort((a,b) => (Object.keys(a.choices).length -
                                                      Object.keys(b.choices).length));
         return candidates[0];
+    }
+
+
+    getFilledCount() {
+        let filledCount = 0;
+        for (let i = 0; i < this.size * this.size; i++) {
+            if (this.squares[i].type == "FIXED") filledCount += 1;
+        }
+        return filledCount;
+    }
+
+
+    reset() {
+        for (let i = 0; i < this.size * this.size; i++) {
+            if (this.squares[i].type == "FREE") {
+                this.squares[i].setValue(0);
+                this.squares[i].calcChoices();
+            }
+        }
     }
 
 

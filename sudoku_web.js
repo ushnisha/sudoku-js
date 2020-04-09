@@ -58,7 +58,7 @@ function oneTimeInitialize() {
     for (let i = 0; i <= sudoku_size; i++) {
         let choice = document.createElement('DIV');
         choice.setAttribute('id', "choice"+String(i));
-        choice.setAttribute('class', 'sudokuchoice');
+        choice.className = 'sudokuchoice';
         choice.setAttribute('val', String(i));
         if (i == 0) {
             choice.textContent = "X";
@@ -87,11 +87,15 @@ function oneTimeInitialize() {
     sudokucontroller.style.height = '3em';
     sudokucontroller.style.width = String(frac*sudoku_size) + 'px';
 
+    let importInput = document.getElementById("importInput");
+    let importpuzzles = document.getElementById("importpuzzles");
     let newpuzzle = document.getElementById("newpuzzle");
     let resetpuzzle = document.getElementById("resetpuzzle");
     let clearall = document.getElementById("clearall");
     let fixall = document.getElementById("fixall");
 
+    importInput.addEventListener('change', importInputChangeEventListener);
+    importpuzzles.addEventListener('click', importPuzzlesClickEventListener);
     newpuzzle.addEventListener("click", newPuzzleClickEventListener);
     resetpuzzle.addEventListener("click", resetPuzzleClickEventListener);
     clearall.addEventListener("click", clearAllClickEventListener);
@@ -103,7 +107,7 @@ function solve() {
     let sudokuSolver = new Worker('./sudoku_solver.js');
     sudokuSolver.postMessage([sudoku_size, sudoku_string]);
     sudokuSolver.onmessage = function(e) {
-        console.log("Received reply from worker...");
+        console.log("Received reply from sudoku solver...");
         solved = e.data[0];
         solution = e.data[1];
     }
@@ -138,17 +142,15 @@ function create_new_sudoku() {
         sq.setAttribute('col', colid);
         sq.setAttribute('blk', blkid);
         sq.setAttribute('val', String(val));
+        sq.className = 'sudokusquare';
 
         sq.addEventListener('click', squareclickEventListener);
         sq.addEventListener('keydown', squarekeyEventListener);
         if (sqtype == "FREE") {
-           // sq.addEventListener('click', squareclickEventListener);
-           // sq.addEventListener('keydown', squarekeyEventListener);
-            sq.setAttribute('class', 'sudokusquare');
             sq.textContent = "";
         }
         else {
-            sq.setAttribute('class', 'sudokusquare fixed');
+            sq.classList.add('fixed');
             sq.textContent = val;
         }
         sq.style.top = String(rowid*frac) + 'px';
@@ -186,22 +188,23 @@ function create_new_sudoku() {
         sudoku.appendChild(sq);
     }
     solve();
+    document.getElementById('0').click();
 }
 
 function squareclickEventListener(event) {
     let this_sq = event.target;
     selected_sq = this_sq;
-    this_sq.style.backgroundColor = '#D8BFD8';
+    this_sq.classList.add('selected');
     let squares = document.getElementsByClassName('sudokusquare');
     for (let i = 0; i < squares.length; i++) {
         if (squares[i].getAttribute('id') == this_sq.getAttribute('id')) {
             continue;
         }
         if (squares[i].getAttribute('type') == "FREE") {
-            squares[i].style.backgroundColor = 'transparent';
+            squares[i].classList.remove('selected');
         }
         else {
-            squares[i].style.backgroundColor = '#dfdfdf';
+            squares[i].classList.remove('selected');
         }
     }
 }
@@ -210,7 +213,6 @@ function squarekeyEventListener(event) {
     let key = String(event.key);
     let this_sq = event.target;
     let orig_value = this_sq.getAttribute('val');
-    //this_sq.style.backgroundColor = 'initial';
     let sqtype = this_sq.getAttribute('type');
 
     let current_val = this_sq.getAttribute('val');
@@ -246,7 +248,8 @@ function squarekeyEventListener(event) {
     else if (deleteKeys.includes(key)) {
         this_sq.textContent = "";
         this_sq.setAttribute('val', String(0));
-        this_sq.style.backgroundColor = 'initial';
+        this_sq.classList.remove('error');
+        validate(this_sq);
     }
     else {
         if (orig_value == '0') {
@@ -256,20 +259,46 @@ function squarekeyEventListener(event) {
             this_sq.textContent = orig_value;
         }
         this_sq.setAttribute('val', orig_value);
-        this_sq.style.backgroundColor = 'initial';
         validate(this_sq);
     }
 }
 
 function validate(this_sq) {
 
+    this_sq.classList.remove('error');
+
+    let counts = [];
+    for (let i = 0; i <= sudoku_size; i++) {
+        counts[i] = 0;
+    }
+
+    let squares = document.getElementsByClassName('sudokusquare');
+
+    for (let i = 0; i < numSq; i++) {
+        let sq = squares[i];
+        let sqval = parseInt(sq.getAttribute('val'));
+        counts[sqval] += 1;
+    }
+    let choices = document.getElementsByClassName('sudokuchoice');
+    for (let i = 0; i < choices.length; i++) {
+        let choice = choices[i];
+        let choiceval = parseInt(choice.getAttribute('val'));
+        if (choiceval == 0) { continue; }
+        if (counts[choiceval] >= sudoku_size) {
+            choice.classList.add('disabled');
+        }
+        else {
+            choice.classList.remove('disabled');
+        }
+    }
+
     let val = parseInt(this_sq.getAttribute('val'));
     if (val == 0) {
+        this_sq.classList.remove('error');
         this_sq.click();
         return;
     }
 
-    let squares = document.getElementsByClassName('sudokusquare');
     for (let i = 0; i < numSq; i++) {
         let sq = squares[i];
         if (sq.getAttribute('id') == this_sq.getAttribute('id')) {
@@ -279,12 +308,11 @@ function validate(this_sq) {
             this_sq.getAttribute('col') == sq.getAttribute('col') ||
             this_sq.getAttribute('blk') == sq.getAttribute('blk')) {
             if (this_sq.getAttribute('val') == sq.getAttribute('val')) {
-                this_sq.style.backgroundColor = '#FA8072';
+                this_sq.classList.add('error');
                 return;
             }
         }
     }
-    this_sq.style.backgroundColor = 'initial';
 }
 
 function check() {
@@ -319,6 +347,26 @@ function choiceClickEventListener(event) {
     }
 }
 
+
+function importInputChangeEventListener(event) {
+    let input_file = event.target.files[0];
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        let inputStr = e.target.result;
+        try {
+            validSudokus = JSON.parse(inputStr);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+    reader.readAsText(input_file);
+}
+
+function importPuzzlesClickEventListener(event) {
+    importInput.click();
+}
+
 function newPuzzleClickEventListener(event) {
     sudoku_string = validSudokus[Math.floor(Math.random() * validSudokus.length)];
     sudoku_size = Math.floor(Math.sqrt(sudoku_string.length));
@@ -333,6 +381,7 @@ function resetPuzzleClickEventListener(event) {
         if (sq.getAttribute('type') == 'FREE') {
             sq.setAttribute('val', '0');
             sq.textContent = "";
+            sq.classList.remove('error', 'selected');
         }
     }
 }
@@ -345,12 +394,13 @@ function clearAllClickEventListener(event) {
         sq.setAttribute('val', '0');
         sq.textContent = "";
         sq.setAttribute('type', 'FREE');
-        sq.setAttribute('class', 'sudokusquare');
+        sq.className = 'sudokusquare';
         sq.removeEventListener('click', squareclickEventListener);
         sq.removeEventListener('keydown', squarekeyEventListener);
         sq.addEventListener('click', squareclickEventListener);
         sq.addEventListener('keydown', squarekeyEventListener);
     }
+    squares[0].click();
 }
 
 
