@@ -36,6 +36,9 @@ let frac = Math.floor(rest/sudoku_size);
 let selected_sq = null;
 let solved = false;
 let solution = null;
+let timer = new Timer();
+
+setInterval(updateTimer, 1000);
 
 oneTimeInitialize();
 create_new_sudoku();
@@ -93,6 +96,14 @@ function oneTimeInitialize() {
     let resetpuzzle = document.getElementById("resetpuzzle");
     let clearall = document.getElementById("clearall");
     let fixall = document.getElementById("fixall");
+    let clockdiv = document.getElementById("timer");
+
+    importpuzzles.setAttribute("title", 'Import Sudoku Puzzles');
+    newpuzzle.setAttribute("title", 'Load New Puzzle');
+    resetpuzzle.setAttribute("title", 'Clear All Entered Values to Start Over');
+    clearall.setAttribute("title", 'Clear All Cells');
+    fixall.setAttribute("title", 'Fix Cells that are not empty');
+    clockdiv.setAttribute("title", 'Click to Pause/Resume the Timer');
 
     importInput.addEventListener('change', importInputChangeEventListener);
     importpuzzles.addEventListener('click', importPuzzlesClickEventListener);
@@ -100,6 +111,7 @@ function oneTimeInitialize() {
     resetpuzzle.addEventListener("click", resetPuzzleClickEventListener);
     clearall.addEventListener("click", clearAllClickEventListener);
     fixall.addEventListener("click", fixAllClickEventListener);
+    clockdiv.addEventListener("click", clockdivClickEventListener);
 }
 
 
@@ -189,6 +201,8 @@ function create_new_sudoku() {
     }
     solve();
     document.getElementById('0').click();
+    timer.reset();
+    timer.begin();
 }
 
 function squareclickEventListener(event) {
@@ -326,6 +340,7 @@ function check() {
         solString += squares[i].getAttribute('val');
     }
     if (solString == solution) {
+        timer.stop();
         alert("Congratulations! Solved!");
     }
 }
@@ -384,6 +399,13 @@ function resetPuzzleClickEventListener(event) {
             sq.classList.remove('error', 'selected');
         }
     }
+    let choices = document.getElementsByClassName('sudokuchoice');
+    for (let i = 0; i < choices.length; i++) {
+        choices[i].classList.remove('disabled');
+    }
+
+    timer.reset();
+    timer.begin();
 }
 
 
@@ -400,6 +422,11 @@ function clearAllClickEventListener(event) {
         sq.addEventListener('click', squareclickEventListener);
         sq.addEventListener('keydown', squarekeyEventListener);
     }
+    let choices = document.getElementsByClassName('sudokuchoice');
+    for (let i = 0; i < choices.length; i++) {
+        choices[i].classList.remove('disabled');
+    }
+
     squares[0].click();
 }
 
@@ -412,4 +439,13 @@ function fixAllClickEventListener(event) {
         sudoku_string += sq.getAttribute('val');
     }
     create_new_sudoku();
+}
+
+function clockdivClickEventListener(event) {
+    if (timer.stopped) return;
+    timer.pause_resume();
+}
+
+function updateTimer() {
+    document.getElementById("timer").textContent = timer.getString();
 }

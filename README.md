@@ -26,6 +26,8 @@ Sudoku-JS allows you to solve a Sudoku Puzzle online.
 * Visual indication of an incorrect value (when the value exists in the row,
   column, or block)
 
+* Timer to keep track of time spent solving puzzle
+
 ## License & Copyright:
 
 Sudoku-JS is provided under AGPLv3 license.
