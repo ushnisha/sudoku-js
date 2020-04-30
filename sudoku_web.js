@@ -50,6 +50,11 @@ function oneTimeInitialize() {
     sudoku.style.height = frac*sudoku_size + 'px';
     sudoku.style.width = frac*sudoku_size + 'px';
 
+    let sudoku_mask = document.getElementById("sudoku_mask");
+    sudoku_mask.style.top = pad + 'px';
+    sudoku_mask.style.left = pad + 'px';
+    sudoku_mask.style.height = (frac*sudoku_size + pad) + 'px';
+    sudoku_mask.style.width = (frac*sudoku_size + 5) + 'px';
 
     let sudokunumbers = document.getElementById("sudokunumbers");
     sudokunumbers.style.position = 'fixed';
@@ -90,14 +95,20 @@ function oneTimeInitialize() {
     sudokucontroller.style.height = '3em';
     sudokucontroller.style.width = String(frac*sudoku_size) + 'px';
 
+    let showoptions = document.getElementById("showOptions");
     let importInput = document.getElementById("importInput");
     let importpuzzles = document.getElementById("importpuzzles");
     let newpuzzle = document.getElementById("newpuzzle");
     let resetpuzzle = document.getElementById("resetpuzzle");
     let clearall = document.getElementById("clearall");
     let fixall = document.getElementById("fixall");
+    let closeoptions = document.getElementById("closeoptions");
     let clockdiv = document.getElementById("timer");
+    let sudokumenu = document.getElementById("sudokumenu");
+    sudokumenu.style.visibility = 'hidden';
 
+    showoptions.setAttribute("title", 'Show Sudoku Options Menu');
+    closeoptions.setAttribute("title", 'Close/Hide Sudoku Options Menu');
     importpuzzles.setAttribute("title", 'Import Sudoku Puzzles');
     newpuzzle.setAttribute("title", 'Load New Puzzle');
     resetpuzzle.setAttribute("title", 'Clear All Entered Values to Start Over');
@@ -105,6 +116,8 @@ function oneTimeInitialize() {
     fixall.setAttribute("title", 'Fix Cells that are not empty');
     clockdiv.setAttribute("title", 'Click to Pause/Resume the Timer');
 
+    showoptions.addEventListener('click', showSudokuOptionsClickEventListener);
+    closeoptions.addEventListener('click', closeSudokuOptionsClickEventListener);
     importInput.addEventListener('change', importInputChangeEventListener);
     importpuzzles.addEventListener('click', importPuzzlesClickEventListener);
     newpuzzle.addEventListener("click", newPuzzleClickEventListener);
@@ -112,6 +125,11 @@ function oneTimeInitialize() {
     clearall.addEventListener("click", clearAllClickEventListener);
     fixall.addEventListener("click", fixAllClickEventListener);
     clockdiv.addEventListener("click", clockdivClickEventListener);
+
+    sudokumenu.style.top = pad + 'px';
+    sudokumenu.style.left = pad + 'px';
+    sudokumenu.style.height = frac*sudoku_size + 'px';
+    sudokumenu.style.width = frac*sudoku_size + 'px';
 }
 
 
@@ -201,6 +219,8 @@ function create_new_sudoku() {
     }
     solve();
     document.getElementById('0').click();
+    validate(document.getElementById('0'));
+
     timer.reset();
     timer.begin();
 }
@@ -362,6 +382,21 @@ function choiceClickEventListener(event) {
     }
 }
 
+function showSudokuOptionsClickEventListener(event) {
+    let sudokumenu = document.getElementById('sudokumenu');
+
+    if (sudokumenu.style.getPropertyValue('visibility') == 'hidden') {
+        sudokumenu.style.setProperty('visibility', 'visible');
+    }
+    else {
+        sudokumenu.style.setProperty('visibility', 'hidden');
+    }
+}
+
+function closeSudokuOptionsClickEventListener(event) {
+    let sudokumenu = document.getElementById('sudokumenu');
+    sudokumenu.style.setProperty('visibility', 'hidden');
+}
 
 function importInputChangeEventListener(event) {
     let input_file = event.target.files[0];
@@ -370,6 +405,8 @@ function importInputChangeEventListener(event) {
         let inputStr = e.target.result;
         try {
             validSudokus = JSON.parse(inputStr);
+            let sudokumenu = document.getElementById('sudokumenu');
+            sudokumenu.style.setProperty('visibility', 'hidden');
         }
         catch (e) {
             console.log(e);
@@ -386,6 +423,9 @@ function newPuzzleClickEventListener(event) {
     sudoku_string = validSudokus[Math.floor(Math.random() * validSudokus.length)];
     sudoku_size = Math.floor(Math.sqrt(sudoku_string.length));
     create_new_sudoku();
+
+    let sudokumenu = document.getElementById('sudokumenu');
+    sudokumenu.style.setProperty('visibility', 'hidden');
 }
 
 
@@ -406,6 +446,9 @@ function resetPuzzleClickEventListener(event) {
 
     timer.reset();
     timer.begin();
+
+    let sudokumenu = document.getElementById('sudokumenu');
+    sudokumenu.style.setProperty('visibility', 'hidden');
 }
 
 
@@ -428,6 +471,9 @@ function clearAllClickEventListener(event) {
     }
 
     squares[0].click();
+
+    let sudokumenu = document.getElementById('sudokumenu');
+    sudokumenu.style.setProperty('visibility', 'hidden');
 }
 
 
@@ -439,11 +485,22 @@ function fixAllClickEventListener(event) {
         sudoku_string += sq.getAttribute('val');
     }
     create_new_sudoku();
+
+    let sudokumenu = document.getElementById('sudokumenu');
+    sudokumenu.style.setProperty('visibility', 'hidden');
 }
 
 function clockdivClickEventListener(event) {
     if (timer.stopped) return;
     timer.pause_resume();
+    let sudoku_mask = document.getElementById('sudoku_mask');
+    if (timer.paused) {
+        sudoku_mask.style.setProperty('visibility', 'visible');
+    }
+    else {
+        sudoku_mask.style.setProperty('visibility', 'hidden');
+    }
+
 }
 
 function updateTimer() {

@@ -62,8 +62,8 @@ div.disabled {
 
 div.sudokucontroller {
     font-size: 1em;
-    display: flex;
-    justify-content: space-evenly;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
 div.controllerbutton {
@@ -74,4 +74,39 @@ div.controllerbutton {
     text-align: center;
     float: left;
     padding: 5px;
+    font-size: 2em;
+    cursor: pointer;
+}
+
+div.sudokumenu {
+    position: fixed;
+    border: solid 1px silver;
+    border-radius: 10px;
+    background-color: white;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 50px;
+    column-gap: 50px;
+    z-index: 10;
+}
+
+div.sudokumenuitem {
+    border: solid 1px silver;
+    border-radius: 10px;
+    height: 2em;
+    line-height: 2em;
+    text-align: center;
+    float: left;
+    padding: 5px;
+    font-size: 2em;
+    cursor: pointer;
+}
+
+div.sudoku_mask
+{
+    position: fixed;
+    background-color: silver;
+    opacity: 0.99;
+    z-index: 9999999;
+    visibility: hidden;
 }

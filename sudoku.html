@@ -31,15 +31,20 @@
             <input id="importInput" type="file" accept=".json"></input>
         </div>
         <div id="controller" class="sudokucontroller">
-            <div id="importpuzzles" class="controllerbutton">Import</div>
-            <div id="newpuzzle" class="controllerbutton">New Puzzle</div>
-            <div id="resetpuzzle" class="controllerbutton">Reset</div>
-            <div id="clearall" class="controllerbutton">Clear Cells</div>
-            <div id="fixall" class="controllerbutton">Fix Cells</div>
+            <div id="showOptions" class="controllerbutton">Options</div>
+            <div id="dummy" class="dummy"></div>
             <div id="timer" class="controllerbutton">00:00:00</div>
         </div>
-        <div id="sudoku" class="sudoku">
+        <div id="sudokumenu" class="sudokumenu">
+            <div id="importpuzzles" class="sudokumenuitem">Import</div>
+            <div id="newpuzzle" class="sudokumenuitem">New Puzzle</div>
+            <div id="resetpuzzle" class="sudokumenuitem">Reset</div>
+            <div id="clearall" class="sudokumenuitem">Clear Cells</div>
+            <div id="fixall" class="sudokumenuitem">Fix Cells</div>
+            <div id="closeoptions" class="sudokumenuitem">Close</div>
         </div>
+        <div id="sudoku" class="sudoku"></div>
+        <div id="sudoku_mask" class="sudoku_mask"></div>
         <div id="sudokunumbers">
         </div>
         <script type="text/javascript" src="./validSudokus.js"></script>
